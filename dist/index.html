@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dither Suite</title>
+  <script type="module" crossorigin src="./assets/index-B-lz04r8.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CJFfaNax.css">
+</head>
+<body>
+  <div id="root"></div>
+  <!-- filter defs the blob-merge pass references from canvas -->
+  <svg id="fxdefs" width="0" height="0" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <filter id="gooProbe" x="-60%" y="-60%" width="220%" height="220%" color-interpolation-filters="sRGB">
+        <feGaussianBlur stdDeviation="3"/>
+      </filter>
+      <filter id="goo" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+        <feGaussianBlur id="gooBlur" stdDeviation="4" result="b"/>
+        <feColorMatrix id="gooMat" in="b" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -9"/>
+      </filter>
+      <filter id="gooOut" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+        <feGaussianBlur id="gooOutBlur" stdDeviation="4" result="b2"/>
+        <feColorMatrix id="gooOutMat" in="b2" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -9"/>
+      </filter>
+    </defs>
+  </svg>
+</body>
+</html>

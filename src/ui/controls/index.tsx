@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { useStore } from '../../store/useStore';
 
 /* One declarative control per interaction type. These replace the ~2,200 lines
  * of addEventListener wiring the single-file build needed. */
@@ -71,10 +72,17 @@ export function Picker({ label, value, options, onChange }: any) {
 }
 
 export function Swatch({ label, value, onChange }: any) {
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const openPicker = useStore((s) => s.openPicker);
   return (
     <div className="sw">
       <label>{label}</label>
-      <input type="color" value={value} onChange={(e) => onChange(e.target.value)} />
+      <button type="button" ref={btnRef} className="swatch" aria-label="Choose colour"
+              style={{ background: value }}
+              onClick={() => {
+                const r = btnRef.current!.getBoundingClientRect();
+                openPicker({ left: r.left, right: r.right, top: r.top, bottom: r.bottom }, value, onChange);
+              }} />
     </div>
   );
 }

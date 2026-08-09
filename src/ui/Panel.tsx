@@ -1,6 +1,7 @@
 import React from 'react';
 import { E, useStore } from '../store/useStore';
 import { Section, Slider, Segmented, Toggle, Picker, Swatch, Row, Btn, Hint } from './controls';
+import TileSlots from './TileSlots';
 
 const pct = (v: any) => Math.round(v) + '%';
 const two = (v: any) => Number(v).toFixed(2);
@@ -145,6 +146,7 @@ export default function Panel() {
                 <Segmented label="Tile ink" value={S.tileInk} onChange={(v: any) => { set({ tileInk: v }); E.invalidateTiles(); }}
                   options={[{ v: 'auto', t: 'Auto' }, { v: 'tile', t: 'Per tile' }, { v: 'original', t: 'Original' }]} />
                 <Slider label="Jitter" value={S.jitter} min={0} max={1} step={0.01} format={two} onChange={(v: any) => set({ jitter: v })} />
+                <TileSlots />
               </Section>
             )}
 

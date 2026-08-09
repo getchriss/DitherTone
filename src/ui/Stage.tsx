@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { E, useStore, wireEngine } from '../store/useStore';
+import OverlayLayer from './OverlayLayer';
 
 export default function Stage() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -28,6 +29,7 @@ export default function Stage() {
         <span className="reg bl" /><span className="reg br" />
         <div className={'plate' + (S.paperMode === 'none' ? ' checker' : '')}>
           <canvas ref={ref} width={10} height={10} />
+          <OverlayLayer />
         </div>
         {stats.empty && (
           <div className="empty">

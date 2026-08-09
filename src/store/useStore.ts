@@ -6,16 +6,25 @@ import * as E from '../engine/core.js';
  * stays the single source of behaviour. */
 type Stats = { grid: string; steps: string; cells: string; size: string; empty: boolean };
 
+export type PickerTarget = {
+  rect: { left: number; right: number; top: number; bottom: number };
+  value: string;
+  onChange: (hex: string) => void;
+};
+
 interface UI {
   rev: number;                       // bumped whenever engine state changes
   stats: Stats;
   toast: string;
   source: { name: string; w: number; h: number } | null;
+  picker: PickerTarget | null;
   bump: () => void;
   set: (patch: Record<string, any>) => void;
   setTxt: (patch: Record<string, any>) => void;
   setM3: (patch: Record<string, any>) => void;
   select: (i: number) => void;
+  openPicker: (rect: PickerTarget['rect'], value: string, onChange: (hex: string) => void) => void;
+  closePicker: () => void;
 }
 
 export const useStore = create<UI>((set, get) => ({
@@ -23,11 +32,14 @@ export const useStore = create<UI>((set, get) => ({
   stats: { ...E.stats },
   toast: '',
   source: null,
+  picker: null,
   bump: () => set({ rev: get().rev + 1 }),
   set: (patch) => { Object.assign(E.S, patch); E.schedule(); get().bump(); },
   setTxt: (patch) => { Object.assign(E.TXT, patch); E.refreshTextPlate?.(); E.schedule(); get().bump(); },
   setM3: (patch) => { Object.assign(E.M3, patch); E.schedule(); get().bump(); },
   select: (i) => { E.setOvSel(i); get().bump(); },
+  openPicker: (rect, value, onChange) => set({ picker: { rect, value, onChange } }),
+  closePicker: () => set({ picker: null }),
 }));
 
 let toastTimer: any = null;
