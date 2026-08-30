@@ -213,8 +213,9 @@ export default function Panel() {
               {S.mode !== 'braille' && <>
                 <Slider label="Mark size at shadow" value={S.tmin} min={0} max={2} step={0.01} format={two} onChange={(v: any) => set({ tmin: v })} />
                 <Slider label="Mark size at highlight" value={S.tmax} min={0} max={2} step={0.01} format={two} onChange={(v: any) => set({ tmax: v })} />
-                <Slider label="Randomise size" value={S.sizeRnd} min={0} max={100}
+                {S.mode !== 'tiles' && <Slider label="Randomise size" value={S.sizeRnd} min={0} max={100}
                         format={(v: any) => v === 0 ? 'by tone' : pct(v)} onChange={(v: any) => set({ sizeRnd: v })} />
+                }
               </>}
               <Slider label="Blob merge" value={S.merge} min={0} max={0.9} step={0.005}
                       format={(v: any) => v === 0 ? 'off' : v.toFixed(2) + ' cells'} onChange={(v: any) => set({ merge: v })} />
@@ -253,6 +254,8 @@ export default function Panel() {
                 <Segmented label="Tile ink" value={S.tileInk} onChange={(v: any) => { set({ tileInk: v }); E.invalidateTiles(); }}
                   options={[{ v: 'auto', t: 'Auto' }, { v: 'tile', t: 'Per tile' }, { v: 'original', t: 'Original' }]} />
                 <Slider label="Jitter" value={S.jitter} min={0} max={1} step={0.01} format={two} onChange={(v: any) => set({ jitter: v })} />
+                <Slider label="Random scale" value={S.sizeRnd} min={0} max={100}
+                  format={(v: any) => v === 0 ? 'off' : pct(v)} onChange={(v: any) => set({ sizeRnd: v })} />
                 <Slider label="Edge feather" value={S.feather} min={0} max={8} step={0.1} format={two} onChange={(v: any) => { set({ feather: v }); E.invalidateTiles(); }} />
                 <Picker label="Rotation" value={S.rot} onChange={(v: any) => set({ rot: v })} options={[{v:'none',t:'Off'},{v:'edge',t:'Follow edges'},{v:'rand',t:'Random'}]} />
                 <Picker label="Snap rotation" value={S.snap} onChange={(v: any) => set({ snap: v })} options={[{v:'0',t:'Off'},{v:'45',t:'45 degrees'},{v:'90',t:'90 degrees'}]} />

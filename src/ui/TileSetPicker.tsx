@@ -11,6 +11,9 @@ const KINDS: { v: string; t: string }[] = [
   { v: 'circles', t: 'Circles' }, { v: 'squares', t: 'Squares' },
   { v: 'triangles', t: 'Triangles' }, { v: 'diamonds', t: 'Diamonds' },
   { v: 'hexagons', t: 'Hexagons' }, { v: 'crosses', t: 'Crosses' },
+  { v: 'stars', t: 'Stars' }, { v: 'capsules', t: 'Capsules' },
+  { v: 'bars', t: 'Diagonal bars' }, { v: 'scallops', t: 'Scallops' },
+  { v: 'blobs', t: 'Organic blobs' },
   { v: 'arcs', t: 'Truchet arcs' }, { v: 'chevrons', t: 'Chevrons' },
   { v: 'dice', t: 'Dice pips' }, { v: 'dicecut', t: 'Dice cut' },
   { v: 'rings', t: 'Rings' }, { v: 'dots', t: 'Halftone dots' },
@@ -25,6 +28,11 @@ function Icon({ kind }: { kind: string }) {
     case 'diamonds': return <svg viewBox="0 0 24 24" width="20" height="20"><polygon points="12,3 21,12 12,21 3,12" fill="none" {...s} strokeWidth="2.2" strokeLinejoin="round" /></svg>;
     case 'hexagons': return <svg viewBox="0 0 24 24" width="20" height="20"><polygon points="12,3.5 19.5,8 19.5,16 12,20.5 4.5,16 4.5,8" fill="none" {...s} strokeWidth="2.2" strokeLinejoin="round" /></svg>;
     case 'crosses': return <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 4v16M4 12h16" fill="none" {...s} strokeWidth="2.6" strokeLinecap="round" /></svg>;
+    case 'stars': return <svg viewBox="0 0 24 24" width="20" height="20"><polygon points="12,2.5 14.8,8.4 21.2,9.1 16.5,13.5 17.8,20 12,16.8 6.2,20 7.5,13.5 2.8,9.1 9.2,8.4" fill="none" {...s} strokeWidth="1.8" /></svg>;
+    case 'capsules': return <svg viewBox="0 0 24 24" width="20" height="20"><rect x="3" y="8" width="18" height="8" rx="4" fill="none" {...s} strokeWidth="2.2" /></svg>;
+    case 'bars': return <svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 19L19 5" {...s} strokeWidth="5" strokeLinecap="butt" /></svg>;
+    case 'scallops': return <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 8a4 4 0 018 0 4 4 0 018 0M4 16a4 4 0 018 0 4 4 0 018 0" fill="none" {...s} strokeWidth="2" /></svg>;
+    case 'blobs': return <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 11C3 5 8 3 12 5c5-2 9 2 8 7 1 5-5 9-9 7-5 2-9-3-8-8z" fill="none" {...s} strokeWidth="2" /></svg>;
     case 'arcs': return (
       <svg viewBox="0 0 24 24" width="20" height="20">
         <path d="M3 3a9 9 0 0 1 9 9" fill="none" {...s} strokeWidth="2.4" strokeLinecap="round" />

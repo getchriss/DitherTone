@@ -868,12 +868,11 @@ export function buildSVG(){
     }
     defs.push('</defs>');
     out.push(defs.join(''));
-    var scales = [];
-    for(k=0;k<L;k++) scales[k] = markScale(k, L);
     for(i=0;i<n;i++){
       var li = clamp(idx[i],0,L-1);
       if(!R.art[li]) continue;
-      var tw = LT.pw[i]*scales[li], th = LT.ph[i]*scales[li];
+      var svgScale = markScale(li, L) * tileRandomScale(i);
+      var tw = LT.pw[i]*svgScale, th = LT.ph[i]*svgScale;
       if(tw <= 0) continue;
       var rot = S.upright ? 0 : LT.pr[i];
       var tr = 'translate('+LT.px[i].toFixed(2)+' '+LT.py[i].toFixed(2)+')' +
@@ -1588,12 +1587,19 @@ export function overlaysSVG(W, H, from, to){
 export function markScale(li, L){
   var t = (L > 1) ? li/(L-1) : 0;
   var v = S.tmin + (S.tmax - S.tmin)*t;
-  if(S.sizeRnd > 0){
+  if(S.sizeRnd > 0 && S.mode !== 'tiles'){
     var r = S.tmin + Math.random()*(S.tmax - S.tmin);
     var k = S.sizeRnd/100;
     v = v*(1-k) + r*k;
   }
   return v * dotGainFor(t);
+}
+function tileRandomScale(i){
+  if(!S.sizeRnd) return 1;
+  // Stable per cell: random-looking without flickering between redraws.
+  var n = Math.sin((i + 1) * 12.9898 + 78.233) * 43758.5453;
+  var r = n - Math.floor(n);
+  return 1 + (r*2 - 1) * (S.sizeRnd/100) * 0.75;
 }
 
 
@@ -1980,7 +1986,7 @@ function drawTiles(ctx,W,H,LT,idx,data,ed,L,A,ink){
     var dest = src2 ? mctx : ctx;
     var cw = LT.pw[i], ch = LT.ph[i];
     var jx = S.jitter*cw*0.5, jy = S.jitter*ch*0.5;
-    var sk = markScale(li, L) * animScale;
+    var sk = markScale(li, L) * tileRandomScale(i) * animScale;
     var cx = LT.px[i], cy = LT.py[i];
     var rot = (A.rot || 0) + (upright ? 0 : LT.pr[i]);
     if(anyLA){
@@ -2875,6 +2881,7 @@ export function makeEmojiTiles(str){
 export const SHAPE_LABELS = {
   circles:'Circles', squares:'Squares', triangles:'Triangles', diamonds:'Diamonds',
   hexagons:'Hexagons', crosses:'Crosses', arcs:'Arcs', chevrons:'Chevrons',
+  stars:'Stars', capsules:'Capsules', bars:'Diagonal bars', scallops:'Scallops', blobs:'Organic blobs',
   dice:'Dice pips', dicecut:'Dice cut', rings:'Concentric rings', dots:'Dot'
 };
 export const STEP_SETS = {dice:1, dicecut:1, rings:1};
@@ -2929,6 +2936,15 @@ function polyPath(x, c, R, sides, rot){
   }
   x.closePath(); x.fill();
 }
+function starPath(x, c, R){
+  x.beginPath();
+  for(var i=0;i<10;i++){
+    var a = -Math.PI/2 + i*Math.PI/5, r = i%2 ? R*0.43 : R;
+    var px = c + Math.cos(a)*r, py = c + Math.sin(a)*r;
+    if(i) x.lineTo(px,py); else x.moveTo(px,py);
+  }
+  x.closePath(); x.fill();
+}
 var INNER_K = 0.425;
 function shapeHasInner(kind){ return kind !== 'arcs' && kind !== 'chevrons'; }
 function drawShape(kind, x, N, k, pad){
@@ -2949,6 +2965,24 @@ function drawShape(kind, x, N, k, pad){
       var t = R*0.58, L = R*1.06;
       x.fillRect(c-t/2, c-L, t, L*2);
       x.fillRect(c-L, c-t/2, L*2, t); break;
+    case 'stars':
+      starPath(x, c, R*1.12); break;
+    case 'capsules':
+      var cw = R*1.9, hh = R*0.58, rr = hh;
+      x.beginPath(); x.moveTo(c-cw/2+rr,c-hh); x.lineTo(c+cw/2-rr,c-hh);
+      x.arcTo(c+cw/2,c-hh,c+cw/2,c,rr); x.arcTo(c+cw/2,c+hh,c,c+hh,rr);
+      x.lineTo(c-cw/2+rr,c+hh); x.arcTo(c-cw/2,c+hh,c-cw/2,c,rr); x.arcTo(c-cw/2,c-hh,c,c-hh,rr); x.fill(); break;
+    case 'bars':
+      x.save(); x.translate(c,c); x.rotate(-Math.PI/4); x.fillRect(-R*1.15,-R*0.34,R*2.3,R*0.68); x.restore(); break;
+    case 'scallops':
+      var sr = R*0.62, so = R*0.43;
+      for(var sy=-1;sy<=1;sy+=2) for(var sx=-1;sx<=1;sx+=2){ x.beginPath(); x.arc(c+sx*so,c+sy*so,sr,0,TAU); x.fill(); } break;
+    case 'blobs':
+      x.beginPath(); x.moveTo(c-R*0.95,c-R*0.08);
+      x.bezierCurveTo(c-R*0.86,c-R*0.82,c-R*0.18,c-R*1.05,c+R*0.25,c-R*0.78);
+      x.bezierCurveTo(c+R*0.92,c-R*0.70,c+R*1.02,c-R*0.05,c+R*0.74,c+R*0.38);
+      x.bezierCurveTo(c+R*0.48,c+R*0.98,c-R*0.30,c+R*0.91,c-R*0.72,c+R*0.55);
+      x.bezierCurveTo(c-R*1.02,c+R*0.32,c-R*1.04,c+R*0.10,c-R*0.95,c-R*0.08); x.fill(); break;
     case 'arcs':
       // truchet quarter-rounds: two opposite corners, great under random rotation.
       // Overshoot by the pad so the feather never eats the join between cells.
