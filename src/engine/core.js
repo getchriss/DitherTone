@@ -25,7 +25,7 @@ function audioMods(){ return null; }
 function audioRestore(_saved){}
 function buildSlots(){ host.onTileSlots(); }
 function refreshModel(){ host.onModelRefresh(); }
-function setSourceKind(k){ srcKind = k; host.onSourceKind(k); }
+export function setSourceKind(k){ srcKind = k; host.onSourceKind(k); }
 function showTriCountSoon(){}
 function stopMotionLoop(){}
 function clearMotion(){}
@@ -85,7 +85,7 @@ export function tilesAnimated(){
   return false;
 }
 var tintCache = {};
-export function invalidateTiles(){ tintCache = {}; wedgeKey = null; }
+export function invalidateTiles(){ tintCache = {}; }
 export let lastText = '';
 var zoomFit = true;
 
@@ -1050,7 +1050,8 @@ export function newOverlay(kind){
           x:50, y:50, size:kind==='text' ? 12 : 30, h:kind==='line' ? 1.2 : 20,
           rot:0, weight:700, track:0, op:100, stroke:0,
           skx:0, sky:0, warp:'none', amp:30, freq:2, phase:0, chroma:0,
-          col:'#f2ede3', grad:false, blend:false};
+          col:'#f2ede3', grad:false, blend:'source-over', locked:false,
+          shadow:false, shadowX:8, shadowY:8, shadowBlur:12, shadowCol:'#000000'};
 }
 function ovFontPx(o, W, H){ return o.size/100 * Math.min(W, H) * 1.6; }
 // half extents in the layer's own space, before rotation and skew
@@ -1114,7 +1115,7 @@ function warpAt(o, t, span){
    The baseline warps above move whole glyphs. These reshape the letterform
    itself, which means rasterising the layer and remapping its pixels. */
 var PIXWARP = {liquid:1, slice:1, smear:1};
-export function ovNeedsPost(o){ return !!PIXWARP[o.warp] || o.chroma > 0; }
+export function ovNeedsPost(o){ return !!PIXWARP[o.warp] || o.chroma > 0 || !!o.shadow; }
 function hash2(x, y){
   var n = (Math.imul(x|0, 374761393) + Math.imul(y|0, 668265263)) | 0;
   n = Math.imul(n ^ (n >>> 13), 1274126177) | 0;
@@ -1302,6 +1303,11 @@ function paintOverlay(ctx, o, W, H, offX, offY){
   var paint = o.grad ? ovGradPaint(ctx, W, H) : o.col;
   ctx.fillStyle = paint;
   ctx.strokeStyle = paint;
+  if(o.shadow){
+    ctx.shadowColor = o.shadowCol || '#000000';
+    ctx.shadowOffsetX = o.shadowX || 0; ctx.shadowOffsetY = o.shadowY || 0;
+    ctx.shadowBlur = o.shadowBlur || 0;
+  }
   ovMatrix(ctx, o, W, H);
   var sw = o.stroke/100*Math.min(W,H);
   var outline = sw > 0;
@@ -1383,7 +1389,8 @@ function ovBox(o, W, H){
   var a = o.rot*Math.PI/180, ca = Math.abs(Math.cos(a)), sa = Math.abs(Math.sin(a));
   var rw = hw*ca + hh*sa, rh = hw*sa + hh*ca;
   var amp = ovAmpPx(o, W, H);
-  var pad = amp + o.chroma + 12;
+  var shadowPad = o.shadow ? Math.max(Math.abs(o.shadowX||0), Math.abs(o.shadowY||0)) + (o.shadowBlur||0)*2 : 0;
+  var pad = amp + o.chroma + shadowPad + 12;
   var cx = o.x/100*W, cy = o.y/100*H;
   var x0 = Math.floor(cx - rw - pad), y0 = Math.floor(cy - rh - pad);
   var x1 = Math.ceil(cx + rw + pad), y1 = Math.ceil(cy + rh + pad);
@@ -1404,7 +1411,7 @@ function ovAmpPx(o, W, H){
 function ovCacheKey(o, W, H){
   return [W, H, o.kind, o.text, o.font, o.x, o.y, o.size, o.h, o.rot, o.weight,
           o.track, o.stroke, o.skx, o.sky, o.warp, o.amp, o.freq, o.phase,
-          o.chroma, o.col, o.grad ? 1 : 0,
+          o.chroma, o.col, o.shadow ? 1 : 0, o.shadowX, o.shadowY, o.shadowBlur, o.shadowCol, o.grad ? 1 : 0,
           o.grad ? (S.gradType+'|'+S.gradAng+'|'+S.gc1+'|'+S.gc2+'|'+S.gc3+'|'+S.gradMid) : ''
          ].join('');
 }
@@ -1441,7 +1448,8 @@ export function drawOverlays(ctx, W, H, from, to){
     if(o.vis === false) continue;
     ctx.save();
     ctx.globalAlpha = o.op/100;
-    if(o.blend) ctx.globalCompositeOperation = 'multiply';
+    var blend = o.blend === true ? 'multiply' : o.blend;
+    if(blend && blend !== 'source-over') ctx.globalCompositeOperation = blend;
     if(ovNeedsPost(o)){
       var r = renderDistorted(o, W, H);
       ctx.drawImage(r.cv, r.box.x, r.box.y);
@@ -1484,11 +1492,12 @@ export function overlaysSVG(W, H, from, to){
   for(i=from;i<to;i++){
     var o = overlays[i];
     if(o.vis === false) continue;
+    var blend = o.blend === true ? 'multiply' : o.blend;
     if(ovNeedsPost(o)){
       // reshaped pixels cannot be described as paths, so embed the raster
       var rr = renderDistorted(o, W, H);
       out.push('<image x="'+rr.box.x+'" y="'+rr.box.y+'" width="'+rr.box.w+'" height="'+rr.box.h+
-        '" opacity="'+(o.op/100).toFixed(3)+'"'+(o.blend ? ' style="mix-blend-mode:multiply"' : '')+
+        '" opacity="'+(o.op/100).toFixed(3)+'"'+(blend && blend !== 'source-over' ? ' style="mix-blend-mode:'+blend+'"' : '')+
         ' xlink:href="'+rr.cv.toDataURL()+'"/>');
       continue;
     }
@@ -1500,7 +1509,8 @@ export function overlaysSVG(W, H, from, to){
     var strokeAttr = outline ? ' stroke="'+paint+'" stroke-width="'+sw.toFixed(2)+'"' : '';
     var tr = ovTransformAttr(o, W, H);
     var op = o.op < 100 ? ' opacity="'+(o.op/100).toFixed(3)+'"' : '';
-    var bl = o.blend ? ' style="mix-blend-mode:multiply"' : '';
+    var bm = o.blend === true ? 'multiply' : o.blend;
+    var bl = bm && bm !== 'source-over' ? ' style="mix-blend-mode:'+bm+'"' : '';
     var warped = (o.warp !== 'none' && o.amp);
     var body = [];
 
@@ -3088,6 +3098,7 @@ export function setArtZ(v){ artZ = v; }
 export function setOvSel(v){ ovSel = v; }
 export function setLayers(v){ layers = v; }
 export function setLayerColors(v){ layerColors = v; }
+export function setLastTileSet(v){ lastTileSet = v; }
 export function setLayerAnim(v){ layerAnim = v; }
 export function setAnimT(v){ animT = v; }
 export function advanceAnim(dt){ animT += dt; }

@@ -124,6 +124,90 @@ textarea {
   outline-offset: -3px
 }
 
+/* ---------- contextual inspector ---------- */
+.pattern-picker {
+  position: relative;
+  padding: 10px 16px 12px;
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--rule)
+}
+
+.pattern-current,
+.pattern-menu button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 8px;
+  cursor: pointer
+}
+
+.pattern-current { margin-top: 5px }
+.pattern-current:hover, .pattern-menu button:hover { background: var(--paper-3); border-color: var(--ink-soft) }
+.pattern-current:focus-visible, .pattern-menu button:focus-visible { outline: 2px solid var(--process); outline-offset: 1px }
+.pattern-icon {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: grid;
+  place-items: center;
+  background: var(--stage-2);
+  color: var(--process);
+  font-family: var(--mono);
+  font-size: 13px
+}
+.pattern-current b, .pattern-current small, .pattern-menu b, .pattern-menu small { display: block }
+.pattern-current b, .pattern-menu b { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase }
+.pattern-current small, .pattern-menu small { color: var(--ink-soft); font-size: 10.5px; margin-top: 2px }
+.pattern-arrow, .pattern-check { margin-left: auto; color: var(--ink-soft) }
+.pattern-menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% - 7px);
+  left: 16px;
+  right: 16px;
+  padding: 5px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  box-shadow: 0 12px 30px rgba(0,0,0,.28)
+}
+.pattern-menu button { border: 0; border-bottom: 1px solid var(--rule) }
+.pattern-menu button:last-child { border-bottom: 0 }
+.pattern-menu button[aria-selected="true"] { background: var(--paper-3) }
+
+.inspector-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper)
+}
+.inspector-tabs button {
+  padding: 9px 4px 8px;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  border-bottom: 2px solid transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase
+}
+.inspector-tabs button:last-child { border-right: 0 }
+.inspector-tabs button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--process); background: var(--paper-2) }
+.inspector-tabs button:focus-visible { outline: 2px solid var(--process); outline-offset: -2px }
+
+.grp .wedge-wrap {
+  margin: 5px 0 12px;
+  padding: 8px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2)
+}
+
 /* ---------- step wedge ---------- */
 .wedge-wrap {
   padding: 11px 16px 12px;
@@ -135,8 +219,16 @@ textarea {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 7px
+  cursor: pointer;
+  list-style: none
 }
+
+.wedge-head::-webkit-details-marker { display: none }
+.wedge-head .ctl-v { margin-left: auto }
+.wedge-chev { margin-left: 8px; color: var(--ink-soft); font-size: 9px }
+.wedge-wrap[open] .wedge-chev { transform: rotate(90deg) }
+.wedge-wrap[open] .wedge-head { margin-bottom: 7px }
+.wedge-wrap:not([open]) { padding-top: 8px; padding-bottom: 8px }
 
 .wedge {
   display: flex;
@@ -334,7 +426,8 @@ input[type=range]:focus-visible::-webkit-slider-thumb {
 }
 
 select,
-input[type=text] {
+input[type=text],
+input[type=number] {
   width: 100%;
   background: var(--paper-2);
   border: 1px solid var(--rule);
@@ -366,7 +459,8 @@ input[type=text]::placeholder {
 }
 
 select:focus,
-input[type=text]:focus {
+input[type=text]:focus,
+input[type=number]:focus {
   outline: 1px solid var(--process);
   border-color: var(--process)
 }
@@ -558,6 +652,40 @@ input[type=text].ramp {
   padding: 1px 3px
 }
 
+/* ---------- creative starting points ---------- */
+.recipes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px
+}
+
+.recipes button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px;
+  text-align: left;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  cursor: pointer
+}
+
+.recipes button:hover { background: var(--paper-3); border-color: var(--ink-soft) }
+.recipes button:focus-visible { outline: 2px solid var(--process); outline-offset: 1px }
+.recipes b, .recipes small { display: block }
+.recipes b { font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase }
+.recipes small { margin-top: 2px; color: var(--ink-soft); font-size: 9.5px; line-height: 1.2 }
+.recipe-chip { width: 22px; height: 28px; flex: 0 0 22px; border: 1px solid var(--rule) }
+.recipe-chip.text { background: repeating-linear-gradient(0deg,#a7ff83 0 1px,#07110a 1px 4px) }
+.recipe-chip.tiles { background: radial-gradient(circle,#f04e37 0 32%,transparent 34%),#1846a3; background-size: 9px 9px }
+.recipe-chip.braille { background: linear-gradient(145deg,#6d28d9,#06b6d4 55%,#facc15) }
+.recipe-chip.hatch { background: repeating-linear-gradient(135deg,#17251d 0 1px,#d8d2bb 1px 5px) }
+.gradient-box { margin-top: 12px; padding-top: 1px; border-top: 1px solid var(--rule) }
+.gradient-preview { height: 24px; margin-top: 10px; border: 1px solid var(--rule) }
+.field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px }
+
 /* ---------- source drop ---------- */
 .drop {
   margin-top: 6px;
@@ -707,6 +835,52 @@ input[type=text].ramp {
 
 .slot.inked .ink {
   display: block
+}
+
+/* ---------- tile set picker ---------- */
+.tileset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.tileset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 4px 7px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.tileset-btn svg {
+  color: inherit;
+}
+
+.tileset-btn:hover {
+  background: var(--paper-3);
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+
+.tileset-btn.active {
+  background: var(--process);
+  color: var(--on-process);
+  border-color: var(--process);
+}
+
+.tileset-btn:focus-visible {
+  outline: 2px solid var(--process);
+  outline-offset: 1px;
 }
 
 /* ---------- colour picker ---------- */
@@ -897,14 +1071,19 @@ input[type=text].ramp {
 
 /* ---------- layers panel ---------- */
 .layers {
-  width: 262px;
-  flex: 0 0 262px;
+  width: 310px;
+  flex: 0 0 310px;
   background: var(--paper);
   border-left: 1px solid var(--edge);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
+.layers-content { min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden }
+.collapse-layers { width: 24px; height: 24px; margin-left: 4px; display: grid; place-items: center; background: var(--paper-2); border: 1px solid var(--rule); cursor: pointer }
+.layers.collapsed { width: 46px; flex-basis: 46px }
+.layers.collapsed .lhead { padding: 10px; flex-direction: column; gap: 8px }
+.layers.collapsed .lhead .ctl-l, .layers.collapsed .lhead .ctl-v, .layers.collapsed .layers-content { display: none }
 
 .lhead {
   display: flex;
@@ -943,6 +1122,16 @@ input[type=text].ramp {
   outline-offset: 1px
 }
 
+.layer-add-wrap { position: relative; padding: 10px 14px; border-bottom: 1px solid var(--rule) }
+.layer-add { width: 100%; padding: 7px; background: var(--paper-2); border: 1px solid var(--rule); cursor: pointer; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase }
+.layer-add:hover { background: var(--paper-3); border-color: var(--ink-soft) }
+.layer-add-menu, .layer-menu { position: absolute; z-index: 45; background: var(--paper); border: 1px solid var(--rule); box-shadow: 0 12px 28px rgba(0,0,0,.3) }
+.layer-add-menu { top: calc(100% - 6px); left: 14px; right: 14px; padding: 4px }
+.layer-add-menu button { display: flex; gap: 10px; width: 100%; padding: 8px; background: transparent; border: 0; border-bottom: 1px solid var(--rule); text-align: left; cursor: pointer; font-family: var(--mono); font-size: 10px; text-transform: uppercase }
+.layer-add-menu button:last-child { border-bottom: 0 }
+.layer-add-menu button:hover, .layer-menu button:hover { background: var(--paper-3) }
+.layer-add-menu button span { width: 18px; color: var(--process); text-align: center }
+
 .ltree {
   flex: 1;
   overflow-y: auto;
@@ -965,13 +1154,32 @@ input[type=text].ramp {
 .lrow {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 5px;
   padding: 7px 8px;
   margin-bottom: 3px;
   background: var(--paper-2);
   border: 1px solid transparent;
   cursor: pointer;
 }
+
+.lrow[draggable="true"] { cursor: grab }
+.lrow[draggable="true"]:active { cursor: grabbing }
+.drag-handle { width: 9px; color: var(--ink-soft); opacity: .55; font-size: 10px }
+.visibility, .lock, .layer-more { width: 22px; height: 24px; flex: 0 0 22px; display: grid; place-items: center }
+.visibility[disabled] { opacity: .4 }
+.layer-thumb { width: 30px; height: 30px; flex: 0 0 30px; display: grid; place-items: center; overflow: hidden; background: var(--stage-2); border: 1px solid var(--rule); font-family: var(--mono); font-size: 11px }
+.layer-thumb img { width: 100%; height: 100%; object-fit: cover }
+.layer-thumb.art-thumb { color: var(--process) }
+.layer-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px }
+.lrow .layer-copy .nm { display: block; width: 100% }
+.layer-copy input { width: 100%; padding: 3px 4px; font-size: 10px }
+.layer-meta { color: var(--ink-soft); font-family: var(--mono); font-size: 8.5px; text-transform: capitalize; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.lock.on { color: var(--process) }
+.layer-more-wrap { position: relative }
+.layer-menu { right: 0; top: 25px; width: 112px; padding: 4px }
+.layer-menu button { width: 100%; padding: 7px; text-align: left; background: transparent; border: 0; border-bottom: 1px solid var(--rule); cursor: pointer; font-family: var(--mono); font-size: 9.5px; text-transform: uppercase }
+.layer-menu button:last-child { border-bottom: 0 }
+.layer-menu .danger { color: var(--reg) }
 
 .lrow:hover {
   background: var(--paper-3)
@@ -1243,20 +1451,37 @@ input[type=text].ramp {
 .aligns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
+  gap: 5px;
   margin-top: 6px
 }
 
 .aligns button {
   background: var(--paper-2);
   border: 1px solid var(--rule);
-  padding: 6px 0;
+  height: 38px;
+  padding: 0;
   cursor: pointer;
   font-family: var(--mono);
   font-size: 9.5px;
   letter-spacing: .06em;
   color: var(--ink-soft);
 }
+.aligns button.active { background: var(--process); border-color: var(--process) }
+.anchor-glyph { position: relative; display: block; width: 22px; height: 22px; margin: auto; border: 1px solid currentColor; opacity: .85 }
+.anchor-glyph i { position: absolute; width: 5px; height: 5px; background: currentColor; transform: translate(-50%,-50%) }
+.aligns button[data-x="0"] .anchor-glyph i { left: 2px }
+.aligns button[data-x="50"] .anchor-glyph i { left: 50% }
+.aligns button[data-x="100"] .anchor-glyph i { left: calc(100% - 2px) }
+.aligns button[data-y="0"] .anchor-glyph i { top: 2px }
+.aligns button[data-y="50"] .anchor-glyph i { top: 50% }
+.aligns button[data-y="100"] .anchor-glyph i { top: calc(100% - 2px) }
+
+.subgrp { margin-top: 14px; border: 1px solid var(--rule); background: var(--paper-2) }
+.subgrp > summary { list-style: none; display: flex; align-items: center; padding: 8px; cursor: pointer; font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase }
+.subgrp > summary::-webkit-details-marker { display: none }
+.subgrp > summary .chev { margin-left: auto; color: var(--ink-soft) }
+.subgrp[open] > summary .chev { transform: rotate(90deg) }
+.subinner { padding: 0 10px 12px; border-top: 1px solid var(--rule) }
 
 .aligns button:hover {
   background: var(--paper-3);
@@ -1387,8 +1612,8 @@ input[type=text].ramp {
 
 @media (max-width:1180px) {
   .layers {
-    width: 210px;
-    flex: 0 0 210px
+    width: 270px;
+    flex: 0 0 270px
   }
 }
 

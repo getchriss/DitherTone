@@ -42,7 +42,7 @@ export default function OverlayLayer() {
     const d = plateWH();
     for (let i = overlays.length - 1; i >= 0; i--) {
       const o = overlays[i];
-      if (o.vis === false) continue;
+      if (o.vis === false || o.locked) continue;
       const ext = E.ovExtent(o, d.W, d.H);
       const l = E.ovLocal(o, px, py, d.W, d.H);
       const pad = Math.max(6, Math.min(d.W, d.H) * 0.008);
@@ -61,6 +61,7 @@ export default function OverlayLayer() {
       if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
       const step = e.shiftKey ? 5 : 0.5;
       const ov = st2.overlays[st2.ovSel];
+      if (ov.locked) return;
       let used = true;
       if (e.key === 'ArrowLeft') ov.x -= step;
       else if (e.key === 'ArrowRight') ov.x += step;
@@ -70,6 +71,7 @@ export default function OverlayLayer() {
         const next = st2.overlays.slice();
         next.splice(st2.ovSel, 1);
         E.setOverlays(next);
+        if (st2.ovSel < st2.artZ) E.setArtZ(st2.artZ - 1);
         E.setOvSel(-1);
       } else used = false;
       if (used) { e.preventDefault(); commit(); }
@@ -103,6 +105,9 @@ export default function OverlayLayer() {
       dragRef.current = { mode: 'move', o, start: pt, ox: o.x, oy: o.y };
       svg.setPointerCapture(e.pointerId);
       e.preventDefault();
+      bump();
+    } else {
+      E.setOvSel(-1);
       bump();
     }
   };
@@ -149,7 +154,7 @@ export default function OverlayLayer() {
   const o = overlays[ovSel];
   const d = plateWH();
   let group: React.ReactNode = null;
-  if (o) {
+  if (o && !o.locked) {
     const ext = E.ovExtent(o, d.W, d.H);
     const hs = Math.max(4, Math.min(d.W, d.H) * 0.012);
     const transform = `translate(${o.x / 100 * d.W} ${o.y / 100 * d.H})` +
@@ -176,6 +181,9 @@ export default function OverlayLayer() {
          onPointerDown={onPointerDown} onPointerMove={onPointerMove}
          onPointerUp={endDrag} onPointerCancel={endDrag}>
       {group}
+      {guidesRef.current.map((g, i) => g.v
+        ? <line key={i} className="guide" x1={g.p} y1={0} x2={g.p} y2={d.H} />
+        : <line key={i} className="guide" x1={0} y1={g.p} x2={d.W} y2={g.p} />)}
     </svg>
   );
 }

@@ -71,6 +71,26 @@ export function Picker({ label, value, options, onChange }: any) {
   );
 }
 
+export function TextField({ label, value, onChange, multiline, placeholder, className = '' }: any) {
+  const field = multiline
+    ? <textarea rows={2} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
+    : <input type="text" className={className} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />;
+  return <label className="ctl"><span className="ctl-row"><span className="ctl-l">{label}</span></span>{field}</label>;
+}
+
+export function NumberField({ label, value, min = 1, max, step = 1, suffix, onChange }: any) {
+  return (
+    <label className="ctl">
+      <span className="ctl-row"><span className="ctl-l">{label}</span>{suffix && <span className="ctl-v">{suffix}</span>}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+        onChange={(e) => {
+          const next = Number(e.target.value);
+          if (Number.isFinite(next)) onChange(next);
+        }} />
+    </label>
+  );
+}
+
 export function Swatch({ label, value, onChange }: any) {
   const btnRef = useRef<HTMLButtonElement>(null);
   const openPicker = useStore((s) => s.openPicker);
